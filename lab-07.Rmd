@@ -1,7 +1,7 @@
 ---
 title: "Lab 07 - Conveying the right message through visualisation"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Haley Lam"
+date: "03-23-26"
 output: github_document
 ---
 
@@ -9,19 +9,49 @@ output: github_document
 
 ```{r load}
 library(tidyverse)
+library(scales)
+library(lubridate)
+library(zoo)
 
 df <- read_csv("kansas_grouped_rolling_avg.csv")
+
 ```
 
 ### Exercise 1
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+Here's some information about the data and the graph:
+
+State: Kansas. 
+Timeframe: 2020, July 13 to August 3. 
+What's being measured: Average of daily cases per 100k population (i.e., it's adjusted for population size). Two groups: Counties with mask mandates vs. counties without mask mandates.
+Source of data: Kansas Department of Health and Environment
 
 ### Exercise 2
 
-...
 
-Add exercise headings as needed.
+These counties did not opt out of their mask mandates: Allen, Atchison, Bourbon, Crawford, Dickinson, Douglas, Franklin, Geary, Gove, Harvey, Jewell, Johnson, Mitchell, Montgomery, Morris, Pratt, Reno, Republic, Saline, Scott, Sedgwick, Shawnee, Stanton, and Wyandotte.
+
+"Daily county-level COVID-19 incidence (cases per 100,000 population) was calculated using case and population counts accessed from USAFacts" 
+- the data for cases and population came from USAFacts. They provide a link in the footnotes.
+
+### Exercise 3
+
+Load files using webpage URLs
+```{r}
+cases_raw <- read_csv(
+  "https://static.usafacts.org/public/data/covid-19/covid_confirmed_usafacts.csv",
+  show_col_types = FALSE
+  )
+pop_raw <- read_csv(
+  "https://static.usafacts.org/public/data/covid-19/covid_county_population_usafacts.csv",
+  show_col_types = FALSE
+  )
+
+```
+
+```{r}
+glimpse(cases_raw)
+glimpse(pop_raw)
+```
+
+Next step is to figure out how many rows/columns and what they mean, and the issue with wide format data for plotting. Also, to shorten the glimpses.
