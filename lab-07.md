@@ -1387,6 +1387,42 @@ glimpse(pop_raw)
     ## $ State         <chr> "AL", "AL", "AL", "AL", "AL", "AL", "AL", "AL", "AL", "A…
     ## $ population    <dbl> 0, 55869, 223234, 24686, 22394, 57826, 10101, 19448, 113…
 
-Next step is to figure out how many rows/columns and what they mean, and
-the issue with wide format data for plotting. Also, to shorten the
-glimpses.
+Wow, this is a giant wall of text. For the “cases_raw” dataset, there
+are 3193 rows and 1269 columns. Each row is a county and each column
+represents every single day of the year (starting from 01/22/2020)
+
+For the “pop_raw” dataset, there are 3195 rows and 4 columns. Each row
+is a county and the columns have information on the population.
+
+Wide data is a problem for plotting because we cannot make the ‘date’
+column on the x-axis (or any axis). Converting to long format would
+place all dates in one column.
+
+### Exercise 4
+
+``` r
+cases_clean <- cases_raw %>%
+  filter(State == "KS", countyFIPS != 0) %>%
+  pivot_longer(
+    cols = -c(countyFIPS, `County Name`, State, StateFIPS),  # need to include stateFIPS!
+    names_to = "date",
+    values_to = "cumulative_cases"
+  ) %>%
+  select(countyFIPS, `County Name`, date, cumulative_cases) %>%
+  mutate(date = lubridate::ymd(date))
+
+pop_clean <- pop_raw %>%
+  filter(State == "KS") %>%
+  select(countyFIPS, `County Name`, population)
+```
+
+### Exercise 5
+
+Here, we restrict to July 5 and August 3.
+
+``` r
+filtered_cases <- cases_clean %>%
+  filter(date >= "2020-07-05" & date <= "2020-08-03")
+```
+
+### Exercise 6
