@@ -114,9 +114,40 @@ filtered_cases <- filtered_cases %>%
     mask_mandate = ifelse(clean_name %in% mandate_counties, "Mask", "No Mask")
   )
 
-final_cases <- filtered_cases %>%
+cases_final <- filtered_cases %>%
   left_join(pop_clean, by = "countyFIPS")
 ```
 
+
+### Exercise 7
+
+```{r}
+cases_final <- cases_final %>%
+  group_by(mask_mandate, date) %>%
+  summarize(
+    total_new = sum(daily_new_cases, na.rm = TRUE),
+    total_pop = sum(population, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+cases_per100k <- cases_final %>%
+  mutate(per_100k = (total_new / total_pop) * 100000)
+
+cases_grouped <- cases_per100k %>%
+  group_by(mask_mandate) %>%
+  arrange(date) %>%
+  mutate(rolling_avg = zoo::rollmean(per_100k, k = 7, fill = NA, align = "right")) %>%
+  ungroup() %>%
+  filter(date >= "2020-07-12") %>%
+  filter(!is.na(rolling_avg)) %>%
+  select(date, rolling_avg, mask_mandate)
+```
+
+### Exercise 8
+
+This is the misleading graph. The left y-axis labeled "Mask" ranges from 15 to 25. The right y-axis labeled "No Mask" ranges from 4 to 14. This makes the graph uninterpretable, though visually they look more alike than different. 
+```{r}
+
+```
 
 
