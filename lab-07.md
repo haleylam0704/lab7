@@ -1425,4 +1425,34 @@ filtered_cases <- cases_clean %>%
   filter(date >= "2020-07-05" & date <= "2020-08-03")
 ```
 
+``` r
+filtered_cases <- filtered_cases %>%
+  group_by(countyFIPS) %>%
+  arrange(date) %>%
+  mutate(daily_new_cases = cumulative_cases - lag(cumulative_cases)) %>%
+  ungroup() %>%
+  filter(!is.na(daily_new_cases))
+```
+
 ### Exercise 6
+
+First, define mandated counties (to later label Mask/No Mask)
+
+``` r
+mandate_counties <- c("Allen", "Atchison", "Bourbon", "Crawford", "Dickinson", 
+                      "Douglas", "Franklin", "Geary", "Gove", "Harvey", 
+                      "Jewell", "Johnson", "Mitchell", "Montgomery", "Morris", 
+                      "Pratt", "Reno", "Republic", "Saline", "Scott", 
+                      "Sedgwick", "Shawnee", "Stanton", "Wyandotte")
+```
+
+``` r
+filtered_cases <- filtered_cases %>%
+  mutate(
+    clean_name = str_remove(`County Name`, " County"), 
+    mask_mandate = ifelse(clean_name %in% mandate_counties, "Mask", "No Mask")
+  )
+
+final_cases <- filtered_cases %>%
+  left_join(pop_clean, by = "countyFIPS")
+```
