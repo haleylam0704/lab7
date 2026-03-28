@@ -145,9 +145,73 @@ cases_grouped <- cases_per100k %>%
 
 ### Exercise 8
 
-This is the misleading graph. The left y-axis labeled "Mask" ranges from 15 to 25. The right y-axis labeled "No Mask" ranges from 4 to 14. This makes the graph uninterpretable, though visually they look more alike than different. 
+This is the misleading graph. The left y-axis labeled "Mask" ranges from 15 to 25. The right y-axis labeled "No Mask" ranges from 4 to 14. This makes the graph uninterpretable, and making the lines visually more alike than different. 
 ```{r}
+misleading_plot <- cases_grouped %>%
+  mutate(
+    plot_value = case_when(
+      mask_mandate == "No Mask" ~ rolling_avg + 11,  # Shift no mask 11 points higher
+      TRUE ~ rolling_avg
+    )
+  ) %>%
+  ggplot(aes(x = date, y = plot_value, color = mask_mandate)) +
+  geom_line(linewidth = 1.2) + 
+  scale_y_continuous(
+    name = "Mask Mandate Counties (Cases per 100k)",
+    limits = c(15, 25), 
+    sec.axis = sec_axis(~ . - 11, name = "No Mask Counties (Cases per 100k)")
+  ) +
+  labs(title = "Kansas COVID-19 7-Day Rolling Average",
+       subtitle = "Misleading Graph!") +
+  theme_minimal()
 
+misleading_plot
 ```
 
+### Exercise 9
+
+Let's do an honest plot.
+```{r}
+honest_plot <- cases_grouped %>%
+  ggplot(aes(x = date, y = rolling_avg, color = mask_mandate)) +
+  geom_line(linewidth = 1.2) +
+  scale_y_continuous(name = "Daily New Cases per 100k (7-Day Avg)") +
+  labs(
+    title = "Kansas COVID-19 7-Day Rolling Average",
+    subtitle = "Honest Plot With 1 Y-Axis!"
+  ) +
+  theme_minimal()
+
+honest_plot
+```
+
+### Exercise 10
+This plot has one y-axis. It does not lead the reader to think that Mask and No Mask counties have similar number of cases (per population). There are differences in baseline rates that were not obvious in the misleading plot.
+
+### Exercise 11
+Looking only at the trends, it seems like the No Mask counties don't show an obvious trend, while the Mask counties clearly show decreases in new Covid cases. Since this is in July, the flat line somewhat makes sense. Maybe this is a time when Covid cases started stabalizing? 
+
+### Exercise 12 
+
+The key components to the honest graph. 1) A single y-axis. 2) The axes are scaled approximately to the min and max. 3) Two seaparte lines that are labeled appropriately. 4) The x-axis is interpretable and not crowded.
+
+### Exercise 13-14
+
+One kind of misleading graph would not adjust for the population (i.e., just show raw counts) and does not including rolling avg (i.e., does not take into account the average of the past 7 days)
+```{r}
+volume_deception_plot <- cases_final %>%
+  ggplot(aes(x = date, y = total_new, color = mask_mandate)) +
+  geom_line(linewidth = 1.2) +
+  labs(
+    title = "Kansas COVID-19 Raw Cases",
+    y = "Total Daily New Cases (Raw Count)",
+    x = "Date",
+    color = "Mandate Status"
+  ) +
+  theme_minimal()
+
+volume_deception_plot
+```
+
+As you can see, this plot now makes it look like masks or no masks don't matter too much. It even shows the mask mandated counties have hgiher variability.
 
